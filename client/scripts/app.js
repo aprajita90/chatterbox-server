@@ -60,11 +60,12 @@ var app = {
       url: app.server,
       type: 'GET',
       // data: { order: '-createdAt' },
-      contentType: 'application/json',
+      contentType: 'application/json', 
+
       success: function(data) {
+        data = JSON.parse(data);
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { return; }
-
         // Store messages for caching later
         app.messages = data.results;
 
@@ -224,12 +225,12 @@ var app = {
   },
 
   startSpinner: function() {
-    // $('.spinner img').show();
+    $('.spinner img').show();
     // $('form input[type=submit]').attr('disabled', 'true');
   },
 
   stopSpinner: function() {
-    // $('.spinner img').fadeOut('fast');
-    // $('form input[type=submit]').attr('disabled', null);
+    $('.spinner img').fadeOut('fast');
+    $('form input[type=submit]').attr('disabled', null);
   }
 };

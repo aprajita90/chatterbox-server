@@ -34,20 +34,7 @@ var defaultCorsHeaders = {
 var results = [];
 
 exports.requestHandler = function(request, response) {
-  // Request and Response come from node's http module.
-  //
-  // They include information about both the incoming request, such as
-  // headers and URL, and about the outgoing response, such as its status
-  // and content.
-  //
-  // Documentation for both request and response can be found in the HTTP section at
-  // http://nodejs.org/documentation/api/
-
-  // Do some basic logging.
-  //
-  // Adding more logging to your server can be an easy way to get passive
-  // debugging help, but you should always be careful about leaving stray
-  // console.logs in your code.
+  
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
   //DEFINE VARIABLES
@@ -57,7 +44,7 @@ exports.requestHandler = function(request, response) {
   var url = request.url;
   var headers = defaultCorsHeaders;
   if (headers) {
-    headers['Content-Type'] = 'application/json';
+    headers['Content-Type'] = 'application/JSON';
   }
 
   //Response Body for GET and POST
@@ -69,7 +56,7 @@ exports.requestHandler = function(request, response) {
   };
 
   //STATUS CODE
-  if (url !== '/classes/messages' && request.method !== 'OPTIONS') {
+  if (url !== '/classes/messages' && url !== '/classes/messages?order=-createdAt' && request.method !== 'OPTIONS') {
     statusCode = 404; //Wrong URL ['Not Found']
   } else if (request.method === 'GET' || request.method === 'OPTIONS') {
     statusCode = 200; // GET
@@ -77,22 +64,22 @@ exports.requestHandler = function(request, response) {
     statusCode = 201; //POST
   }
 
-  if (request.method === 'OPTIONS') {
-    response.writeHead(statusCode, defaultCorsHeaders);
-    response.end();
-  }
-
+  //processing request
   if (request.method === 'GET') {
     responseMessage = JSON.stringify(responseBody);
   }
 
   if (request.method === 'POST') {
-    var obj;
+    var obj = '';
     request.on('data', function(chunk) {
-      obj = JSON.parse(chunk.toString());
-      results.push(obj);
+      obj += chunk.toString();
+    });
+
+    request.on('end', function() {
+      results.push(JSON.parse(obj));
     });
   }
+  console.log(results);
   
   response.writeHead(statusCode, headers);
   response.end(responseMessage);
