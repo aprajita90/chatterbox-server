@@ -64,7 +64,6 @@ exports.requestHandler = function(request, response) {
 
   request.on('error', function(err) {
     console.error(err);
-    statusCode = 404;
   }).on('data', function(chunk) {
     // results.push(chunk.toString());
     obj = JSON.parse(chunk.toString());
@@ -76,7 +75,6 @@ exports.requestHandler = function(request, response) {
 
     response.on('error', function(err) {
       console.error(err);
-      statusCode = 404;
     });
   });
 
@@ -94,7 +92,6 @@ exports.requestHandler = function(request, response) {
 
   } else if (request.method === 'POST') {
     console.log('inside POST request');
-    statusCode = 201;
   }
 
 
