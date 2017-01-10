@@ -28,6 +28,8 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
+var results = [];
+
 exports.requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -57,26 +59,29 @@ exports.requestHandler = function(request, response) {
   //request url
   var url = request.uri;
 
-  //create a body
+  //create an array to hold chunks
+  var obj;
+
+  request.on('error', function(err) {
+    console.error(err);
+    statusCode = 404;
+  }).on('data', function(chunk) {
+    // results.push(chunk.toString());
+    obj = JSON.parse(chunk.toString());
+  }).on('end', function() {
+    if (obj !== undefined) {
+      results.push(obj);
+      console.log(results);
+    }
+
+    response.on('error', function(err) {
+      console.error(err);
+      statusCode = 404;
+    });
+  });
 
   if (request.method === 'GET') {
     console.log('inside GET request');
-    var results = [];
-    request.on('error', function(err) {
-      console.error(err);
-    }).on('data', function(chunk) {
-      results.push(chunk);
-    }).on('end', function() {
-      results = Buffer.concat(results).toString();
-      response.on('error', function(err) {
-        console.error(err);
-      });
-      response.end(results);
-    });
-  
-    // .writeHead() writes to the request line and headers of the response,
-    // which includes the status and all headers.
-    response.writeHead(statusCode, headers);
 
     var responseBody = {
       headers: headers,
@@ -85,34 +90,16 @@ exports.requestHandler = function(request, response) {
       results: results
     };
 
-    // Make sure to always call response.end() - Node may not send
-    // anything back to the client until you do. The string you pass to
-    // response.end() will be the body of the response - i.e. what shows
-    // up in the browser.
-    //
-    // Calling .end "flushes" the response's internal buffer, forcing
-    // node to actually send all the data over to the client.
-
     response.end(JSON.stringify(responseBody));
+
   } else if (request.method === 'POST') {
     console.log('inside POST request');
-    request.on('error', function(err) {
-      console.error(err);
-    }).on('data', function(chunk) {
-      results.push(chunk);
-    }).on('end', function() {
-      results = Buffer.concat(results).toString();
-      response.on('error', function(err) {
-        console.error(err);
-      });
-    });
     statusCode = 201;
-    response.writeHead(statusCode, headers);
-    response.end();
-  } else {
-    response.end();
   }
 
+
+  response.writeHead(statusCode, headers);
+  response.end();
 
 
 

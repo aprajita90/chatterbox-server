@@ -39,7 +39,7 @@ var app = {
 
     // POST the message to the server
     $.ajax({
-      url: app.server,
+      url: app.server + JSON.stringify(message),
       type: 'POST',
       data: JSON.stringify(message),
       success: function (data) {
