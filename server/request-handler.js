@@ -60,6 +60,7 @@ exports.requestHandler = function(request, response) {
   //create a body
 
   if (request.method === 'GET') {
+    console.log('inside GET request');
     var results = [];
     request.on('error', function(err) {
       console.error(err);
@@ -93,25 +94,25 @@ exports.requestHandler = function(request, response) {
     // node to actually send all the data over to the client.
 
     response.end(JSON.stringify(responseBody));
-  } else {
-    response.statusCode = 404;
-    response.end();
-  }
-
-  if (request.method === 'POST') {
-    debugger;
+  } else if (request.method === 'POST') {
+    console.log('inside POST request');
     request.on('error', function(err) {
       console.error(err);
     }).on('data', function(chunk) {
       results.push(chunk);
     }).on('end', function() {
       results = Buffer.concat(results).toString();
-      response.statusCode = 201;
       response.on('error', function(err) {
         console.error(err);
       });
     });
+    statusCode = 201;
+    response.writeHead(statusCode, headers);
+    response.end();
+  } else {
+    response.end();
   }
+
 
 
 
