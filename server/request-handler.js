@@ -28,6 +28,7 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
+
 var results = [];
 
 exports.requestHandler = function(request, response) {
@@ -45,69 +46,49 @@ exports.requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
-  console.log('Serving request type ' + request.method + ' for url ' + request.uri);
+  console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
-  // The outgoing status.
-  var statusCode = 200;
-
-  // See the note below about CORS headers.
-  var headers = request.headers;
-
-  //create request method
+  //DEFINE VARIABLES
+  var responseMessage = '';
+  var statusCode;
   var method = request.method;
-
-  //request url
-  var url = request.uri;
-
-  //create an array to hold chunks
-  var obj;
-
-  request.on('error', function(err) {
-    console.error(err);
-  }).on('data', function(chunk) {
-    // results.push(chunk.toString());
-    obj = JSON.parse(chunk.toString());
-  }).on('end', function() {
-    if (obj !== undefined) {
-      results.push(obj);
-      console.log(results);
-    }
-
-    response.on('error', function(err) {
-      console.error(err);
-    });
-  });
-
-  if (request.method === 'GET') {
-    console.log('inside GET request');
-
-    var responseBody = {
-      headers: headers,
-      method: method,
-      url: url,
-      results: results
-    };
-
-    response.end(JSON.stringify(responseBody));
-
-  } else if (request.method === 'POST') {
-    console.log('inside POST request');
+  var url = request.url;
+  var headers = request.headers;
+  if (headers) {
+    headers['Content-Type'] = 'application/json';
   }
 
+  //Response Body for GET and POST
+  var responseBody = {
+    headers: headers,
+    method: method,
+    url: url,
+    results: results
+  };
 
+  //STATUS CODE
+  if (url !== '/classes/messages') {
+    statusCode = 404; //Wrong URL ['Not Found']
+  } else if (request.method === 'GET') {
+    statusCode = 200; // GET
+  } else {
+    statusCode = 201; //POST
+  }
+
+  if (request.method === 'GET') {
+    responseMessage = JSON.stringify(responseBody);
+  } 
+
+  if (request.method === 'POST') {
+    var obj;
+    request.on('data', function(chunk) {
+      obj = JSON.parse(chunk.toString());
+      results.push(obj);
+    });
+  }
+  
   response.writeHead(statusCode, headers);
-  response.end();
-
-
-
-
-
-  // Tell the client we are sending them plain text.
-  //
-  // You will need to change this if you are sending something
-  // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'application/json';
-
+  response.end(responseMessage);
 };
 
 
