@@ -21,6 +21,8 @@ this file and include it in basic-server.js so that it actually works.
 //
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
+var url = require('url');
+
 var defaultCorsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -53,7 +55,7 @@ exports.requestHandler = function(request, response) {
   var statusCode;
   var method = request.method;
   var url = request.url;
-  var headers = request.headers;
+  var headers = defaultCorsHeaders;
   if (headers) {
     headers['Content-Type'] = 'application/json';
   }
@@ -67,17 +69,22 @@ exports.requestHandler = function(request, response) {
   };
 
   //STATUS CODE
-  if (url !== '/classes/messages') {
+  if (url !== '/classes/messages' && request.method !== 'OPTIONS') {
     statusCode = 404; //Wrong URL ['Not Found']
-  } else if (request.method === 'GET') {
+  } else if (request.method === 'GET' || request.method === 'OPTIONS') {
     statusCode = 200; // GET
-  } else {
+  } else if (request.method === 'POST') {
     statusCode = 201; //POST
+  }
+
+  if (request.method === 'OPTIONS') {
+    response.writeHead(statusCode, defaultCorsHeaders);
+    response.end();
   }
 
   if (request.method === 'GET') {
     responseMessage = JSON.stringify(responseBody);
-  } 
+  }
 
   if (request.method === 'POST') {
     var obj;
