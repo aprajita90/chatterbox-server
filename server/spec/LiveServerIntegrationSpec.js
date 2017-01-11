@@ -101,6 +101,4 @@ describe('server', function() {
       done();
     });
   });
-
-
 });

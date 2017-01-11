@@ -70,6 +70,11 @@ exports.requestHandler = function(request, response) {
   }
 
   //processing request
+  if (request.method === 'OPTIONS') {
+    response.writeHead(statusCode, headers);
+    response.end(responseMessage);
+  }
+
   if (request.method === 'GET') {
     responseMessage = JSON.stringify(responseBody);
     response.writeHead(statusCode, headers);
