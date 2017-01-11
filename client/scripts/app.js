@@ -48,6 +48,7 @@ var app = {
 
         // Trigger a fetch to update the messages, pass true to animate
         app.fetch();
+
       },
       error: function (error) {
         console.error('chatterbox: Failed to send message', error);
@@ -59,11 +60,10 @@ var app = {
     $.ajax({
       url: app.server,
       type: 'GET',
-      // data: { order: '-createdAt' },
-      contentType: 'application/json', 
-
+      contentType: 'application/JSON', 
       success: function(data) {
         data = JSON.parse(data);
+        console.log(data);
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { return; }
         // Store messages for caching later
@@ -225,12 +225,12 @@ var app = {
   },
 
   startSpinner: function() {
-    $('.spinner img').show();
+    // $('.spinner img').show();
     // $('form input[type=submit]').attr('disabled', 'true');
   },
 
   stopSpinner: function() {
-    $('.spinner img').fadeOut('fast');
-    $('form input[type=submit]').attr('disabled', null);
+    // $('.spinner img').fadeOut('fast');
+    // $('form input[type=submit]').attr('disabled', null);
   }
 };

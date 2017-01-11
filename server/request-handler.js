@@ -61,12 +61,19 @@ exports.requestHandler = function(request, response) {
   } else if (request.method === 'GET' || request.method === 'OPTIONS') {
     statusCode = 200; // GET
   } else if (request.method === 'POST') {
+    console.log('inside POST status code');
     statusCode = 201; //POST
+  } else {
+    statusCode = 501;
+    response.writeHead(statusCode, headers);
+    response.end(responseMessage);
   }
 
   //processing request
   if (request.method === 'GET') {
     responseMessage = JSON.stringify(responseBody);
+    response.writeHead(statusCode, headers);
+    response.end(responseMessage);
   }
 
   if (request.method === 'POST') {
@@ -76,13 +83,25 @@ exports.requestHandler = function(request, response) {
     });
 
     request.on('end', function() {
-      results.push(JSON.parse(obj));
+      var parseObj = JSON.parse(obj);
+      parseObj.objectId = Math.random() * 10000;
+      results.push(parseObj);
+
+      //if message says I Am Tea Pot
+      if (parseObj.message === 'I Am Tea Pot') {
+        console.log('here');
+        statusCode = 418;
+        console.log('statusCode', statusCode);
+        response.writeHead(statusCode, headers);
+        response.end(responseMessage);
+      } else {
+        response.writeHead(statusCode, headers);
+        response.end(responseMessage);
+      }
     });
   }
-  console.log(results);
-  
-  response.writeHead(statusCode, headers);
-  response.end(responseMessage);
+  // response.writeHead(statusCode, headers);
+  // response.end(responseMessage);
 };
 
 

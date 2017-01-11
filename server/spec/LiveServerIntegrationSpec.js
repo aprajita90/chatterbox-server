@@ -59,7 +59,6 @@ describe('server', function() {
       // Now if we request the log, that message we posted should be there:
       request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
         var messages = JSON.parse(body).results;
-        console.log('messages', messages);
         expect(messages[0].username).to.equal('Jono');
         expect(messages[0].message).to.equal('Do my bidding!');
         done();
@@ -70,6 +69,35 @@ describe('server', function() {
   it('Should 404 when asked for a nonexistent endpoint', function(done) {
     request('http://127.0.0.1:3000/arglebargle', function(error, response, body) {
       expect(response.statusCode).to.equal(404);
+      done();
+    });
+  });
+
+  it('should not accept PUT requests to /classes/messages', function(done) {
+    var requestParams = {method: 'PUT',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Jono',
+        message: 'Do my bidding!'}
+    };
+
+    request(requestParams, function(error, response, body) {
+      expect(response.statusCode).to.equal(501);
+      done();
+    });
+  });
+
+  it('should return 418 statusCode if POST request "I Am Tea Pot" to /classes/messages', function(done) {
+    var requestParams = {method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Jono',
+        message: 'I Am Tea Pot'}
+    };
+
+    request(requestParams, function(error, response, body) {
+      console.log('response', response.statusCode);
+      expect(response.statusCode).to.equal(418);
       done();
     });
   });
